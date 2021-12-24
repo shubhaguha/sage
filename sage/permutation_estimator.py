@@ -27,7 +27,8 @@ class PermutationEstimator:
                  min_coalition=0.0,
                  max_coalition=1.0,
                  verbose=False,
-                 bar=True):
+                 bar=True,
+                 check_in_sensitive_group=None):
         '''
         Estimate SAGE values.
 
@@ -110,6 +111,7 @@ class PermutationEstimator:
             mb = np.random.choice(N, batch_size)
             x = X[mb]
             y = Y[mb]
+            in_sensitive_group = check_in_sensitive_group(x) if check_in_sensitive_group else None
 
             # Sample permutations.
             S[:] = 0
@@ -132,7 +134,7 @@ class PermutationEstimator:
 
             # Make prediction with minimum coalition.
             y_hat = self.imputer(x, S)
-            prev_loss = self.loss_fn(y_hat, y)
+            prev_loss = self.loss_fn(y_hat, y, in_sensitive_group=in_sensitive_group)
 
             # Add all remaining features.
             for i in range(min_coalition, max_coalition):
@@ -142,7 +144,7 @@ class PermutationEstimator:
 
                 # Make prediction with missing features.
                 y_hat = self.imputer(x, S)
-                loss = self.loss_fn(y_hat, y)
+                loss = self.loss_fn(y_hat, y, in_sensitive_group=in_sensitive_group)
 
                 # Calculate delta sample.
                 scores[arange, inds] = prev_loss - loss

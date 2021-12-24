@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
 
 def model_conversion(model):
@@ -175,7 +176,7 @@ class MSELoss:
         assert reduction in ('none', 'mean')
         self.reduction = reduction
 
-    def __call__(self, pred, target):
+    def __call__(self, pred, target, in_sensitive_group=None):
         # Add dimension if necessary.
         if target.shape[-1] == 1 and len(target.shape) - len(pred.shape) == 1:
             pred = np.expand_dims(pred, -1)
@@ -198,7 +199,7 @@ class CrossEntropyLoss:
         assert reduction in ('none', 'mean')
         self.reduction = reduction
 
-    def __call__(self, pred, target, eps=1e-12):
+    def __call__(self, pred, target, eps=1e-12, in_sensitive_group=None):
         # Clip.
         pred = np.clip(pred, eps, 1 - eps)
 
@@ -224,12 +225,53 @@ class CrossEntropyLoss:
             return loss
 
 
+class EERLoss:
+    '''Equal error rate or crossover error rate (EER or CER): the rate at which
+    both acceptance and rejection errors are equal. The value of the EER can be
+    easily obtained from the ROC curve. The EER is a quick way to compare the
+    accuracy of devices with different ROC curves. In general, the device with
+    the lowest EER is the most accurate.'''
+
+    def __call__(self, pred, target, in_sensitive_group):
+        """abs(fnr(adv_group) - fnr(disadv_group))"""
+        pred = np.argmax(pred, axis=1)
+
+        # Separate pred and target into two groups based on sensitive feature
+        # TODO: Can probably be done smarter
+        pred1, pred2 = [], []
+        target1, target2 = [], []
+        for idx in range(len(pred)):
+            if in_sensitive_group[idx]:
+                pred1.append(pred[idx])
+                target1.append(target[idx])
+            else:
+                pred2.append(pred[idx])
+                target2.append(target[idx])
+
+        # Calc sensitive group FNR
+        tn1, fp1, fn1, tp1 = confusion_matrix(target1, pred1, labels=[0,1]).ravel()
+        p1 = tp1 + fn1
+        fnr1 = fn1 / p1 if p1 > 0.0 else np.float64(0.0)
+
+        # Calc other group FNR
+        tn2, fp2, fn2, tp2 = confusion_matrix(target2, pred2, labels=[0,1]).ravel()
+        p2 = tp2 + fn2
+        fnr2 = fn2 / p2 if p2 > 0.0 else np.float64(0.0)
+
+        # Calc difference in FNR
+        fnr_diff = fnr1 - fnr2
+
+        return abs(fnr_diff)
+
+
 def get_loss(loss, reduction='mean'):
     '''Get loss function by name.'''
     if loss == 'cross entropy':
         loss_fn = CrossEntropyLoss(reduction=reduction)
     elif loss == 'mse':
         loss_fn = MSELoss(reduction=reduction)
+    elif loss == 'equal error rate':
+        loss_fn = EERLoss()
     else:
         raise ValueError('unsupported loss: {}'.format(loss))
     return loss_fn
