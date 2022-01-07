@@ -94,7 +94,7 @@ Shapley values are computationally costly to calculate exactly, so we implemente
 
 1. **Permutation sampling.** This is the approach described in the original paper (see `PermutationEstimator`).
 <!--This estimator has an optional argument `min_coalition` that lets you relax the Shapley value's efficiency axiom, often leading to faster importance values with similar properties to SAGE (see [Calibration](https://github.com/iancovert/sage/blob/master/notebooks/calibration.ipynb) for an example).-->
-2. **KernelSAGE.** This is a linear regression-based estimatorthat is similar to KernelSHAP (see `KernelEstimator`). It is described in this [paper](https://arxiv.org/abs/2012.01536), and the [Bank](https://github.com/iancovert/sage/blob/master/notebooks/bank.ipynb) notebook shows an example use-case.
+2. **KernelSAGE.** This is a linear regression-based estimator that is similar to KernelSHAP (see `KernelEstimator`). It is described in this [paper](https://arxiv.org/abs/2012.01536), and the [Bank](https://github.com/iancovert/sage/blob/master/notebooks/bank.ipynb) notebook shows an example use-case.
 3. **Iterated sampling.** This is a variation on the permutation sampling approach where we calculate Shapley values for each feature sequentially (see `IteratedEstimator`). This permits faster convergence for features with low variance, but it can result in wider confidence intervals.
 4. **Sign estimation**. This method estimates SAGE values to a lower precision by focusing on their sign (i.e., whether they help or hurt performance). It is implemented in `SignEstimator`, and the [Bank](https://github.com/iancovert/sage/blob/master/notebooks/bank.ipynb) notebook shows an example.
 
