@@ -106,6 +106,8 @@ class PermutationEstimator:
         tracker = utils.ImportanceTracker()
 
         # Permutation sampling.
+        import time
+        f = open(f"prev_loss_{time.time()}.txt", "w")
         for it in range(n_loops):
             # Sample data.
             mb = np.random.choice(N, batch_size)
@@ -135,6 +137,7 @@ class PermutationEstimator:
             # Make prediction with minimum coalition.
             y_hat = self.imputer(x, S)
             prev_loss = self.loss_fn(y_hat, y, in_sensitive_group=in_sensitive_group)
+            print(f"Iteration: {it}, Loss: {prev_loss}", file=f)
 
             # Add all remaining features.
             for i in range(min_coalition, max_coalition):
@@ -191,4 +194,5 @@ class PermutationEstimator:
         if bar:
             bar.close()
 
+        f.close()
         return core.Explanation(tracker.values, tracker.std, explanation_type)
