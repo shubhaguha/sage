@@ -122,7 +122,7 @@ def test_with_unfairness_metric(model, train, test, Y_test, feature_names):
     sensitive_column_index = feature_names.index("Age")
     check_in_sensitive_group = lambda data: data[:,sensitive_column_index] <= 30
     tic_eer = time.perf_counter()
-    sage_values_eer = estimator_eer(test, Y_test, check_in_sensitive_group=check_in_sensitive_group)
+    sage_values_eer = estimator_eer(test, Y_test, n_permutations=10000, verbose=True, check_in_sensitive_group=check_in_sensitive_group)
     toc_eer = time.perf_counter()
 
     # Print results
