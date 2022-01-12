@@ -20,7 +20,7 @@ def main(model_filename):
     categorical_inds, feature_names, train, val, test, Y_train, Y_val, Y_test = load_data()
 
     if os.path.isfile(model_filename):
-        model = load_model()
+        model = load_model(model_filename)
     else:
         model = train_model(categorical_inds, train, val, Y_train, Y_val)
         model.save_model(model_filename)
@@ -68,9 +68,9 @@ def load_data():
 ### Section 2: Train model ###
 ##############################
 
-def load_model():
+def load_model(model_filename):
     model = CatBoostClassifier()
-    model.load_model("notebooks/credit-model.cbm")
+    model.load_model(model_filename)
     return model
 
 
