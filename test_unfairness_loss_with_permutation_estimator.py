@@ -27,7 +27,7 @@ def main(model_filename):
 
     evaluate_model(test, Y_train, Y_test, model)
 
-    test_with_cross_entropy(model, train, test, Y_test)
+    # test_with_cross_entropy(model, train, test, Y_test)
 
     test_with_unfairness_metric(model, train, test, Y_test, feature_names)
 
@@ -114,6 +114,21 @@ def test_with_cross_entropy(model, train, test, Y_test):
 
 
 def test_with_unfairness_metric(model, train, test, Y_test, feature_names):
+    """NEW: Global false negative rate as loss function"""
+
+    # Setup and calculate with custom fairness-related loss function
+    imputer = sage.MarginalImputer(model, train[:512])
+    estimator_fnr = sage.PermutationEstimator(imputer, 'fnr')
+    tic_fnr = time.perf_counter()
+    sage_values_fnr = estimator_fnr(test, Y_test, n_permutations=10000, verbose=True)
+    toc_fnr = time.perf_counter()
+
+    # Print results
+    print("SAGE values using false negative rate as loss:", sage_values_fnr)
+    print(f"Calculated in {(toc_fnr - tic_fnr)/60:0.4f} minutes")
+
+
+def test_with_unfairness_metric1(model, train, test, Y_test, feature_names):
     """NEW: Equal error rate as loss function"""
 
     # Setup and calculate with custom fairness-related loss function
