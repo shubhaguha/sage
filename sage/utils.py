@@ -225,6 +225,19 @@ class CrossEntropyLoss:
             return loss
 
 
+class FNRLoss:
+    '''False negative rate as a loss function.'''
+
+    def __call__(self, pred, target, in_sensitive_group=None):
+        pred = np.argmax(pred, axis=1)
+
+        tn, fp, fn, tp = confusion_matrix(target, pred, labels=[0,1]).ravel()
+        p = tp + fn
+        fnr = fn / p if p > 0.0 else np.float64(0.0)
+
+        return fnr
+
+
 class EERLoss:
     '''Equal error rate or crossover error rate (EER or CER): the rate at which
     both acceptance and rejection errors are equal. The value of the EER can be
@@ -270,6 +283,8 @@ def get_loss(loss, reduction='mean'):
         loss_fn = CrossEntropyLoss(reduction=reduction)
     elif loss == 'mse':
         loss_fn = MSELoss(reduction=reduction)
+    elif loss == 'fnr':
+        loss_fn = FNRLoss()
     elif loss == 'equal error rate':
         loss_fn = EERLoss()
     else:
