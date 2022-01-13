@@ -22,7 +22,15 @@ setuptools.setup(
         'numpy',
         'scipy',
         'matplotlib',
-        'tqdm'
+        'tqdm',
+
+        # --- Following were added for FairDeploy ---
+        # for test script(s)
+        "click",
+        "sklearn",
+        "catboost",
+        # for notebook(s)
+        "jupyter",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

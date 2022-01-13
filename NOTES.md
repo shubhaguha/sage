@@ -14,10 +14,8 @@ pip install -U pip
 pip install .
 
 # Run example notebooks
-pip install jupyter pandas sklearn xgboost catboost
 sage-env/bin/jupyter notebook  # to make sure you run Jupyter in the right environment
 
 # Run credit example with CatBoost model
-pip install click sklearn catboost
 python3 test_unfairness_loss_with_permutation_estimator.py
 ```
