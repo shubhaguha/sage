@@ -107,7 +107,9 @@ class PermutationEstimator:
 
         # Permutation sampling.
         import time
-        f = open(f"prev_loss_{time.time()}.txt", "w")
+        filename = f"prev_loss_{time.time()}.txt"
+        print("Printing iterative loss to", filename)
+        f = open(filename, "w")
         for it in range(n_loops):
             # Sample data.
             mb = np.random.choice(N, batch_size)
