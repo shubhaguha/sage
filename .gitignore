@@ -11,3 +11,4 @@ sage_importance.egg-info
 data/MNIST
 venv
 sage-env
+*.cbm
