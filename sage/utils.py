@@ -238,12 +238,10 @@ class FNRLoss:
         return fnr
 
 
-class EERLoss:
-    '''Equal error rate or crossover error rate (EER or CER): the rate at which
-    both acceptance and rejection errors are equal. The value of the EER can be
-    easily obtained from the ROC curve. The EER is a quick way to compare the
-    accuracy of devices with different ROC curves. In general, the device with
-    the lowest EER is the most accurate.'''
+class EqualOpportunityLoss:
+    '''Equal opportunity is an intuitive measure of fairness in contexts in
+    which a positive classification result is favorable: the difference between
+    false negative rate of a privileged group and an unprivileged group.'''
 
     def __call__(self, pred, target, in_sensitive_group):
         """abs(fnr(adv_group) - fnr(disadv_group))"""
@@ -285,8 +283,8 @@ def get_loss(loss, reduction='mean'):
         loss_fn = MSELoss(reduction=reduction)
     elif loss == 'fnr':
         loss_fn = FNRLoss()
-    elif loss == 'equal error rate':
-        loss_fn = EERLoss()
+    elif loss == 'equal opportunity':
+        loss_fn = EqualOpportunityLoss()
     else:
         raise ValueError('unsupported loss: {}'.format(loss))
     return loss_fn
