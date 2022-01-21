@@ -234,8 +234,23 @@ class FNRLoss:
         tn, fp, fn, tp = confusion_matrix(target, pred, labels=[0,1]).ravel()
         p = tp + fn
         fnr = fn / p if p > 0.0 else np.float64(0.0)
+        print(f"fn = {fn}, p = {p}, fnr = {fnr}")
 
         return fnr
+
+
+class FPRLoss:
+    '''False positive rate as a loss function.'''
+
+    def __call__(self, pred, target, in_sensitive_group=None):
+        pred = np.argmax(pred, axis=1)
+
+        tn, fp, fn, tp = confusion_matrix(target, pred, labels=[0,1]).ravel()
+        n = tn + fp
+        fpr = fp / n if n > 0.0 else np.float64(0.0)
+        print(f"fp = {fp}, n = {n}, fpr = {fpr}")
+
+        return fpr
 
 
 class EqualOpportunityLoss:
@@ -283,6 +298,8 @@ def get_loss(loss, reduction='mean'):
         loss_fn = MSELoss(reduction=reduction)
     elif loss == 'fnr':
         loss_fn = FNRLoss()
+    elif loss == 'fpr':
+        loss_fn = FPRLoss()
     elif loss == 'equal opportunity':
         loss_fn = EqualOpportunityLoss()
     else:
