@@ -106,10 +106,6 @@ class PermutationEstimator:
         tracker = utils.ImportanceTracker()
 
         # Permutation sampling.
-        import time
-        filename = f"prev_loss_{time.time()}.txt"
-        print("Printing iterative loss to", filename)
-        f = open(filename, "w")
         for it in range(n_loops):
             # Sample data.
             mb = np.random.choice(N, batch_size)
@@ -139,7 +135,8 @@ class PermutationEstimator:
             # Make prediction with minimum coalition.
             y_hat = self.imputer(x, S)
             prev_loss = self.loss_fn(y_hat, y, in_sensitive_group=in_sensitive_group)
-            print(f"Iteration: {it}, Loss: {prev_loss}", file=f)
+            if verbose:
+                print(f"===> Iteration {it}, Prev loss = {prev_loss} [outer loop]")
 
             # Add all remaining features.
             for i in range(min_coalition, max_coalition):
@@ -150,6 +147,8 @@ class PermutationEstimator:
                 # Make prediction with missing features.
                 y_hat = self.imputer(x, S)
                 loss = self.loss_fn(y_hat, y, in_sensitive_group=in_sensitive_group)
+                if verbose:
+                    print(f"\tLoss = {loss} [inner loop]")
 
                 # Calculate delta sample.
                 scores[arange, inds] = prev_loss - loss
@@ -196,5 +195,4 @@ class PermutationEstimator:
         if bar:
             bar.close()
 
-        f.close()
         return core.Explanation(tracker.values, tracker.std, explanation_type)
